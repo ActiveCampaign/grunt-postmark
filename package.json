@@ -1,0 +1,20 @@
+{
+  "name": "grunt-postmark",
+  "version": "0.0.1",
+  "description": "Send emails through Postmark using GruntJS",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/derekrushforth/grunt-postmark.git"
+  },
+  "author": {
+    "name": "Derek Rushforth",
+    "email": "derek@wildbit.com"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-nodeunit": "^0.4.1",
+    "postmark": "^0.2.6"
+  }
+}

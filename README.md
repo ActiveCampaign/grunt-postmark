@@ -62,7 +62,8 @@ grunt.initConfig({
        src: ['test/email.html']
      }
    }
-});```
+});
+```
 
 #### Options support global and target
 Options specified through a target will always take precedence over global options.
@@ -85,4 +86,5 @@ grunt.initConfig({
        src: ['test/email.html', 'test/email2.html]
      }
    }
-});```
+});
+```

@@ -83,7 +83,7 @@ grunt.initConfig({
      },
      digest: {
        subject: 'Yo',
-       src: ['test/email.html', 'test/email2.html]
+       src: ['test/email.html', 'test/email2.html']
      }
    }
 });

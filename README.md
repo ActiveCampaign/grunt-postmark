@@ -1,4 +1,4 @@
-# grunt-postmark v0.0.2 
+# grunt-postmark v0.0.3
 
 [![Code Climate](https://codeclimate.com/github/derekrushforth/grunt-postmark/badges/gpa.svg)](https://codeclimate.com/github/derekrushforth/grunt-postmark)
 [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
@@ -24,35 +24,35 @@ grunt.loadNpmTasks('grunt-postmark');
 ## Postmark task
 _Run this task with the `grunt postmark` command._
 
-### Options
+## Options
 
 
-#### serverToken
-Your postmark server token can be found on your server’s credentials page on the [Postmark’s](http://postmarkapp.com) app.
-
-Type: `String`
-
-
-#### from
-This is the from address you are using to send the email. This must be a confirmed address that's set up on Postmark’s sender signatures.
+### serverToken
+Your server token can be found on your server’s credentials page on [Postmark’s](http://postmarkapp.com) app.
 
 Type: `String`
 
 
-#### to
+### from
+This is the from address you are using to send the email. This must be a confirmed address that's set up on [Postmark’s](http://postmarkapp.com) sender signatures.
+
+Type: `String`
+
+
+### to
 The address you’re sending to.
 
 Type: `String`
 
 
-####  subject
+###  subject
 
 Type: `String`
 
 
-### Examples
+## Examples
 
-#### Options specified through target
+### Options specified through target
 
 ```javascript
 grunt.initConfig({
@@ -68,7 +68,7 @@ grunt.initConfig({
 });
 ```
 
-#### Options support global and target
+### Specify options through targets or globally
 Options specified through a target will always take precedence over global options.
 
 ```javascript

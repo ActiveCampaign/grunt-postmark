@@ -1,6 +1,6 @@
 /*
  * grunt-postmark
- * 
+ * https://github.com/derekrushforth/grunt-postmark.git
  */
 
 'use strict';

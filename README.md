@@ -28,7 +28,7 @@ _Run this task with the `grunt postmark` command._
 
 
 #### serverToken
-Your postmark server token can be found on your server’s credentials page.
+Your postmark server token can be found on your server’s credentials page on the [Postmark’s](http://postmarkapp.com) app.
 
 Type: `String`
 
@@ -58,7 +58,7 @@ Type: `String`
 grunt.initConfig({
   postmark: {
      email: {
-       serverToken: 'postmark server token'
+       serverToken: 'postmark server token',
        from: 'you@youremail.com',
        to: 'you@youremail.com',
        subject: 'Yo',
@@ -75,7 +75,7 @@ Options specified through a target will always take precedence over global optio
 grunt.initConfig({
   postmark: {
      options: {
-       serverToken: 'postmark server token'
+       serverToken: 'postmark server token',
        from: 'you@youremail.com',
        to: 'you@youremail.com',
        subject: 'Yo'

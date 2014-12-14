@@ -24,7 +24,7 @@ module.exports = function(grunt) {
     ------------------------------------------------- */
     postmark: {
       options: {
-        serverToken: ''
+        serverToken: 'POSTMARK_API_TEST'
       },
       email: {
         from: 'you@youremail.com',

@@ -58,7 +58,7 @@ Type: `String`
 grunt.initConfig({
   postmark: {
      email: {
-       serverToken: 'postmark server token',
+       serverToken: 'POSTMARK_API_TEST',
        from: 'you@youremail.com',
        to: 'you@youremail.com',
        subject: 'Yo',
@@ -75,7 +75,7 @@ Options specified through a target will always take precedence over global optio
 grunt.initConfig({
   postmark: {
      options: {
-       serverToken: 'postmark server token',
+       serverToken: 'POSTMARK_API_TEST',
        from: 'you@youremail.com',
        to: 'you@youremail.com',
        subject: 'Yo'

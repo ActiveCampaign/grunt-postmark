@@ -18,6 +18,12 @@ module.exports = function(grunt) {
         to: 'you@youremail.com',
         subject: 'Yo',
         src: ['test/email.html']
+      },
+      bulk: {
+        from: 'you@youremail.com',
+        to: 'you@youremail.com',
+        subject: 'Hey',
+        src: ['test/*.html']
       }
     }
 

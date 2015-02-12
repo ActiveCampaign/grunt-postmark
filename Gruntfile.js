@@ -7,19 +7,6 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
 
-    /* JSHint
-    ------------------------------------------------- */
-    jshint: {
-      all: [
-        'Gruntfile.js',
-        'tasks/*.js'
-      ],
-      options: {
-        jshintrc: '.jshintrc'
-      }
-    },
-
-
     /* Postmark
     ------------------------------------------------- */
     postmark: {
@@ -37,8 +24,7 @@ module.exports = function(grunt) {
   });
 
   grunt.loadTasks('tasks');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
 
-  grunt.registerTask('default', ['jshint', 'postmark']);
+  grunt.registerTask('default', ['postmark']);
 
 };

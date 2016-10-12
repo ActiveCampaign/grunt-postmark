@@ -9,9 +9,9 @@ module.exports = function(grunt) {
 
   grunt.registerMultiTask('postmark', 'Send emails through Postmark', function() {
 
-    var done = this.async(),
-        options = this.options(),
-        _data = this.data;
+    var done = this.async();
+    var options = this.options();
+    var _data = this.data;
 
     // Check for server token
     if (!options.serverToken && !_data.serverToken) { 
@@ -30,25 +30,28 @@ module.exports = function(grunt) {
         'Subject': _data.subject || options.subject
       };
 
-      // Send batch API request based off number of emails
+      // If there are multiple source files
       if (this.filesSrc.length > 1) {
-        // Send batch messages
         var messages = [];
 
+        // Iterate through each file
         this.filesSrc.forEach(function(path) {
+          // Read the file and push it to messages array
           var obj = clone(message);
           obj.HtmlBody = grunt.file.read(path);
           messages.push(obj);
         });
 
+        // Send batch message
         client.sendEmailBatch(messages, function(err, response) {
           handleResponse(err, response, done);
         });
 
       } else {
-        // Send single message
+        // Read file contents
         message.HtmlBody = grunt.file.read(this.filesSrc);
 
+        // Send single message
         client.sendEmail(message, function(err, response) {
           handleResponse(err, response, done);
         });

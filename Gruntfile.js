@@ -6,12 +6,13 @@
 module.exports = function(grunt) {
 
   grunt.initConfig({
+    secrets: grunt.file.readJSON('secrets.json'),
 
     /* Postmark
     ------------------------------------------------- */
     postmark: {
       options: {
-        serverToken: 'POSTMARK_API_TEST'
+        serverToken: '<%= secrets.serverToken %>'
       },
       email: {
         from: 'you@youremail.com',

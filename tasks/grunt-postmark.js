@@ -29,6 +29,7 @@ module.exports = function(grunt) {
         'Subject': _data.subject || options.subject
       };
 
+      // Send batch API request based off number of emails
       if (this.filesSrc.length > 1) {
         // Send batch messages
         var messages = [];
@@ -40,13 +41,7 @@ module.exports = function(grunt) {
         });
 
         postmark.batch(messages, function(err, response) {
-          if (err) {
-            grunt.log.warn('Error response: ' + JSON.stringify(err));
-          } else {
-            grunt.log.writeln('Email sent successfully:');
-            grunt.log.writeln(JSON.stringify(response));
-          }
-          done();
+          handleResponse(err, response, done);
         });
 
       } else {
@@ -54,21 +49,31 @@ module.exports = function(grunt) {
         message.HtmlBody = grunt.file.read(this.filesSrc);
 
         postmark.send(message, function(err, response) {
-          if (err) {
-            grunt.log.warn('Error response: ' + JSON.stringify(err));
-          } else {
-            grunt.log.writeln('Email sent successfully:');
-            grunt.log.writeln(JSON.stringify(response));
-          }
-          done();
+          handleResponse(err, response, done);
         });
       }
     
     } else {
+      // Warn about no files being passed to task
       grunt.log.warn('No src file found \n');
     }
 
   });
+
+
+  function handleResponse(err, response, done) {
+    err ? errorMessage(err) : successMessage(response);
+    done();
+  }
+
+  function errorMessage(response) {
+    grunt.log.warn('Error response: ' + JSON.stringify(response));
+  }
+
+  function successMessage(response) {
+    grunt.log.writeln('Email sent successfully:');
+    grunt.log.writeln(JSON.stringify(response));
+  }
 
   function clone(obj) {
      return JSON.parse(JSON.stringify(obj));

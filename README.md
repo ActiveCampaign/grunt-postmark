@@ -1,6 +1,5 @@
 # grunt-postmark
 
-[![Code Climate](https://codeclimate.com/github/derekrushforth/grunt-postmark/badges/gpa.svg)](https://codeclimate.com/github/derekrushforth/grunt-postmark)
 [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 
 > Send emails through Postmark using GruntJS. You can use this to test your email templates.

@@ -1,6 +1,6 @@
 /*
  * grunt-postmark
- * ttps://github.com/derekrushforth/grunt-postmark.git
+ * https://github.com/wildbit/grunt-postmark.git
  */
 
 module.exports = function(grunt) {

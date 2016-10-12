@@ -21,7 +21,7 @@
   "main": "Gruntfile.js",
   "license": "MIT",
   "devDependencies": {
-    "grunt": "^0.4.5"
+    "grunt": "^1.0.1"
   },
   "keywords": [
     "postmark",
@@ -29,6 +29,6 @@
     "email"
   ],
   "dependencies": {
-    "postmark": "^1.0.0"
+    "postmark": "^1.2.1"
   }
 }

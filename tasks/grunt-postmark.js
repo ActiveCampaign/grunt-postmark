@@ -19,7 +19,8 @@ module.exports = function(grunt) {
     }
 
     // Postmark lib
-    var postmark = require('postmark')(options.serverToken || _data.serverToken);
+    var postmark = require('postmark');
+    var client = new postmark.Client(options.serverToken || _data.serverToken);
 
     if (this.files.length > 0) {
 
@@ -40,7 +41,7 @@ module.exports = function(grunt) {
           messages.push(obj);
         });
 
-        postmark.batch(messages, function(err, response) {
+        client.sendEmailBatch(messages, function(err, response) {
           handleResponse(err, response, done);
         });
 
@@ -48,7 +49,7 @@ module.exports = function(grunt) {
         // Send single message
         message.HtmlBody = grunt.file.read(this.filesSrc);
 
-        postmark.send(message, function(err, response) {
+        client.sendEmail(message, function(err, response) {
           handleResponse(err, response, done);
         });
       }

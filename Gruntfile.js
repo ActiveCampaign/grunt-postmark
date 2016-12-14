@@ -26,12 +26,24 @@ module.exports = function(grunt) {
         subject: 'Hey',
         src: ['test/*.html']
       }
+    },
+
+    "postmark-templates": {
+      options: {
+        serverToken: '<%= secrets.serverToken %>',
+      },
+      build: {
+        name: "testing-template-node-js" + Date(),
+        subject: "{{subject}}",
+        textBody: "text body for template {{id}}!",
+        htmlBody: "{{content}}",
+      }
     }
 
   });
 
   grunt.loadTasks('tasks');
 
-  grunt.registerTask('default', ['postmark']);
+  grunt.registerTask('default', ['postmark', 'postmark-templates']);
 
 };

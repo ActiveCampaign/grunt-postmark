@@ -15,14 +15,14 @@ module.exports = function(grunt) {
         serverToken: '<%= secrets.serverToken %>'
       },
       email: {
-        from: '<%= secrets.testEmailSender %>',
-        to: '<%= secrets.testEmailSender %>',
+        from: '<%= secrets.testSender %>',
+        to: '<%= secrets.testRecipient %>',
         subject: 'Yo',
         src: ['test/email.html']
       },
       bulk: {
-        from: '<%= secrets.testEmailSender %>',
-        to: '<%= secrets.testEmailSender %>',
+        from: '<%= secrets.testSender %>',
+        to: '<%= secrets.testRecipient %>',
         subject: 'Hey',
         src: ['test/*.html']
       }

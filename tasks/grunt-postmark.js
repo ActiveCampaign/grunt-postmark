@@ -3,9 +3,9 @@
  * https://github.com/wildbit/grunt-postmark.git
  */
 
-'use strict';
-
 module.exports = function(grunt) {
+
+  'use strict';
 
   grunt.registerMultiTask('postmark', 'Send emails through Postmark', function() {
 
@@ -14,7 +14,7 @@ module.exports = function(grunt) {
     var _data = this.data;
 
     // Check for server token
-    if (!options.serverToken && !_data.serverToken) { 
+    if (!options.serverToken && !_data.serverToken) {
       grunt.fail.warn('Missing Postmark server token \n');
     }
 
@@ -25,8 +25,8 @@ module.exports = function(grunt) {
     if (this.files.length > 0) {
 
       var message = {
-        'From': _data.from || options.from, 
-        'To': _data.to || options.to, 
+        'From': _data.from || options.from,
+        'To': _data.to || options.to,
         'Subject': _data.subject || options.subject
       };
 
@@ -56,7 +56,7 @@ module.exports = function(grunt) {
           handleResponse(err, response, done);
         });
       }
-    
+
     } else {
       // Warn about no files being passed to task
       grunt.log.warn('No src file found \n');
@@ -66,7 +66,7 @@ module.exports = function(grunt) {
 
 
   function handleResponse(err, response, done) {
-    err ? errorMessage(err) : successMessage(response);
+    var _ = err ? errorMessage(err) : successMessage(response);
     done();
   }
 

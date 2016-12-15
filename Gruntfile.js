@@ -39,12 +39,25 @@ module.exports = function(grunt) {
         htmlFile: 'test/email.html',
         textFile: 'test/email.txt',
       }
-    }
+    },
+
+    "postmark-servers": {
+      options: {
+        accountToken: '<%= secrets.accountToken %>',
+      },
+      build: {
+        name: "testing-server-" + new Date().valueOf(),
+        smtpApiActivated: true,
+
+        // NOTE complete list of server attributes:
+        // http://developer.postmarkapp.com/developer-api-servers.html#create-server
+      }
+    },
 
   });
 
   grunt.loadTasks('tasks');
 
-  grunt.registerTask('default', ['postmark', 'postmark-templates']);
+  grunt.registerTask('default', ['postmark', 'postmark-templates', 'postmark-servers']);
 
 };

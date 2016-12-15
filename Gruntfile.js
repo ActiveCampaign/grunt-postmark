@@ -33,10 +33,11 @@ module.exports = function(grunt) {
         serverToken: '<%= secrets.serverToken %>',
       },
       build: {
-        name: "testing-template-node-js" + Date(),
-        subject: "{{subject}}",
-        textBody: "text body for template {{id}}!",
-        htmlBody: "{{content}}",
+        name: "testing-template-node-js-" + new Date().valueOf(),
+        subject: "Testing grunt-postmark-templates",
+        // NOTE these are read from filesystem. globbing not supported
+        htmlFile: 'test/email.html',
+        textFile: 'test/email.txt',
       }
     }
 

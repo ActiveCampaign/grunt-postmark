@@ -1,5 +1,5 @@
 /*
- * grunt-postmark
+ * grunt-postmark-templates
  * https://github.com/wildbit/grunt-postmark.git
  */
 
@@ -15,23 +15,44 @@ module.exports = function(grunt) {
 
     // Check for server token
     if (!options.serverToken && !_data.serverToken) {
-      grunt.fail.warn('Missing Postmark server token \n');
+      grunt.fail.warn('Missing required option "serverToken" \n');
     }
+
+    // Check for required attributes
+    ['name', 'subject'].forEach(function(name){
+      requiredProperty(name, options, _data);
+    });
+
+    grunt.log.writeln('Template data: ' + JSON.stringify(_data));
 
     // Postmark lib
     var postmark = require('postmark');
     var client = new postmark.Client(options.serverToken || _data.serverToken);
+    var htmlBody = _data.htmlBody || options.htmlBody;
+    var textBody = _data.textBody || options.textBody;
 
+    if (_data.htmlFile) {
+      htmlBody = grunt.file.read(_data.htmlFile);
+    }
+    if (_data.textFile) {
+      textBody = grunt.file.read(_data.textFile);
+    }
     client.createTemplate({
         name: _data.name || options.name,
-        textBody: _data.textBody || options.textBody,
-        htmlBody: _data.htmlBody || options.htmlBody,
+        textBody: textBody,
+        htmlBody: htmlBody,
         subject: _data.subject || options.subject,
     }, function(err, response) {
       handleResponse(err, response, done);
     });
 
   });
+
+  function requiredProperty(name, options, data) {
+    if (!data[name] && !options[name]) {
+      grunt.fail.warn('Missing required property "' + name + '" \n');
+    }
+  }
 
   function handleResponse(err, response, done) {
     if (err){

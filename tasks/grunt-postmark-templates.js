@@ -19,8 +19,9 @@ module.exports = function(grunt) {
     }
 
     // Check for required attributes
+    // TODO: require one of fooBody or fooFile
     ['name', 'subject'].forEach(function(name){
-      requiredProperty(name, options, _data);
+      requireProperty(name, options, _data);
     });
 
     // Postmark lib
@@ -46,7 +47,7 @@ module.exports = function(grunt) {
 
   });
 
-  function requiredProperty(name, options, data) {
+  function requireProperty(name, options, data) {
     if (!data[name] && !options[name]) {
       grunt.fail.warn('Missing required property "' + name + '" \n');
     }

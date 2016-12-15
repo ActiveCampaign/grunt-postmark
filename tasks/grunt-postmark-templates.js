@@ -23,8 +23,6 @@ module.exports = function(grunt) {
       requiredProperty(name, options, _data);
     });
 
-    grunt.log.writeln('Template data: ' + JSON.stringify(_data));
-
     // Postmark lib
     var postmark = require('postmark');
     var client = new postmark.Client(options.serverToken || _data.serverToken);

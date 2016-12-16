@@ -7,41 +7,42 @@ module.exports = function(grunt) {
 
   'use strict';
 
-  grunt.registerMultiTask('postmark-servers', 'Create server', function() {
+  grunt.registerTask('postmark-servers', 'Create server', function() {
 
     var done = this.async();
-    var options = this.options();
-    var _data = this.data;
 
+    // default options (attempting to disable all hooks)
+    var options = this.options({
+      color: "turquoise",
+      smtpApiActivated: true,
+      trackOpens: false,
+      trackLinks: 'none',
+      DeliveryHookUrl: '',
+      InboundHookUrl: '',
+      BounceHookUrl: '',
+      OpenHookUrl: '',
+    });
+
+    var accountToken = grunt.config('secrets.accountToken') || options.accountToken;
     // Check for account token
-    if (!options.accountToken && !_data.accountToken) {
-      grunt.fail.warn('Missing option "accountToken" \n');
+    if (!accountToken) {
+      grunt.fail.warn('Missing required config property "accountToken" \n');
+    }
+
+    if (!options.name) {
+      grunt.fail.warn('Missing required server property "name" \n');
     }
 
     // Postmark lib
     var postmark = require('postmark');
-    var client = new postmark.AdminClient(options.accountToken || _data.accountToken);
+    var client = new postmark.AdminClient(accountToken);
 
-    // Check for server name
-    if (!_data.name && !options.name) {
-      grunt.fail.warn('Missing required server property "name" \n');
-    }
-
-    var name = _data.name || options.name;
-
-    client.createServer({
-        name: name,
-        color: _data.color || options.color || "Turquoise",
-        smtpApiActivated: _data.smtpApiActivated || options.smtpApiActivated || true,
-        trackOpens: _data.trackOpens || options.trackOpens || false,
-        trackLinks: _data.trackLinks || options.trackLinks || "none",
-
-        // TODO: handle other attributes
-    }, function(err, response) {
+    // TODO use merge for default options
+    client.createServer(options, function(err, response) {
       // NOTE if a server with the specified name already exists, we get this response:
       // {"status":422,"message":"This server name already exists.","code":603}
       if (err && err.status == 422){
-        existingServer(client, name, done);
+        existingServer(client, options.name, done);
       } else {
         handleResponse(err, response, done);
       }

@@ -27,8 +27,10 @@ module.exports = function(grunt) {
       grunt.fail.warn('Missing required server property "name" \n');
     }
 
+    var name = _data.name || options.name;
+
     client.createServer({
-        name: _data.name || options.name,
+        name: name,
         color: _data.color || options.color || "Turquoise",
         smtpApiActivated: _data.smtpApiActivated || options.smtpApiActivated || true,
         trackOpens: _data.trackOpens || options.trackOpens || false,
@@ -36,10 +38,31 @@ module.exports = function(grunt) {
 
         // TODO: handle other attributes
     }, function(err, response) {
-      handleResponse(err, response, done);
+      // NOTE if a server with the specified name already exists, we get this response:
+      // {"status":422,"message":"This server name already exists.","code":603}
+      if (err && err.status == 422){
+        existingServer(client, name, done);
+      } else {
+        handleResponse(err, response, done);
+      }
     });
 
   });
+
+  // find the server with matching name and return its configuration
+  function existingServer(client, name, done) {
+    // listServers implements find-by-property
+    client.listServers({name: name}, function(err, servers){
+      if (err){
+        grunt.log.warn('Error retrieving existing server: ' + JSON.stringify(err));
+        done();
+      } else {
+        var server = servers.Servers[0];
+        grunt.log.writeln('Server found: ' + JSON.stringify(server));
+        done(server);
+      }
+    });
+  }
 
   function handleResponse(err, response, done) {
     if (err){
@@ -51,6 +74,7 @@ module.exports = function(grunt) {
       done(response);
     }
   }
+
 
   function errorMessage(err) {
     grunt.log.warn('Error creating server: ' + JSON.stringify(err));

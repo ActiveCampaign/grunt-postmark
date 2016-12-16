@@ -56,7 +56,7 @@ module.exports = function(grunt) {
   grunt.loadTasks('tasks');
 
   // test create of an existing server (by name),
-  grunt.registerTask('duplicate-server', ['postmark-servers', 'postmark-servers']);
+  grunt.registerTask('duplicate-server', ['postmark-servers']);
 
   grunt.registerTask('default', ['postmark', 'postmark-templates', 'postmark-servers', 'duplicate-server']);
 

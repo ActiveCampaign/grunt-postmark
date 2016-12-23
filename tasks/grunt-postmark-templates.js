@@ -7,7 +7,12 @@ module.exports = function(grunt) {
 
   'use strict';
 
-  grunt.registerMultiTask('postmark-templates', 'Create or update PostMark template', function() {
+  grunt.registerTask('postmark-templates', 'create or update a set of templates', function() {
+    grunt.config.set('_postmark-template', grunt.config('templates') || grunt.config('postmark-templates'));
+    grunt.task.run('_postmark-template');
+  });
+
+  grunt.registerMultiTask('_postmark-template', 'Create or update PostMark template', function() {
 
     var done = this.async();
     var options = this.options();
@@ -59,8 +64,10 @@ module.exports = function(grunt) {
     } else {
       var templateId = response.TemplateId;
       var name = response.Name;
+      var result = {name: name, templateId: templateId};
+      grunt.config.merge('updatedTemplates', result);
       successMessage(name, templateId);
-      done({name: name, templateId: templateId});
+      done(result);
     }
   }
 

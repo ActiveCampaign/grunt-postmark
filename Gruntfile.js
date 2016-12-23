@@ -39,25 +39,14 @@ module.exports = function(grunt) {
       },
     },
 
+    // you can either specify the template configuration here, or in templates.json
     'postmark-templates': {
-      build: {
-        name: 'testing-template-node-js-' + new Date().valueOf(),
+      test_email_file: {
+        name: 'testing-postmark-templates-js-' + new Date().valueOf(),
         subject: 'Testing grunt-postmark-templates',
         // NOTE these are read from filesystem. globbing not supported
         htmlFile: 'test/email.html',
         textFile: 'test/email.txt',
-      }
-    },
-
-    // you can either specify the template configuration here, or in templates.json
-    'update-templates': {
-      'templates': {
-        // key is used as template name
-        test_email: {
-          subject: 'Testing grunt postmark-update-templates task',
-          htmlFile: 'test/email.html',
-          textFile: 'test/email.txt',
-        }
       }
     }
 
@@ -67,11 +56,6 @@ module.exports = function(grunt) {
 
   // test create of an existing server (by name),
   grunt.registerTask('duplicate-server', ['postmark-servers']);
-
-  grunt.registerTask('update-templates', 'create or update a set of templates', function() {
-    grunt.config.set('postmark-templates', grunt.config('templates') || grunt.config('update-templates.templates'));
-    grunt.task.run('postmark-templates');
-  });
 
   grunt.registerTask('default', ['postmark', 'postmark-templates', 'postmark-servers', 'duplicate-server']);
 

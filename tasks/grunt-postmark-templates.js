@@ -7,11 +7,13 @@ module.exports = function(grunt) {
 
   'use strict';
 
-  grunt.registerMultiTask('postmark-templates', 'Push templates', function() {
+  grunt.registerMultiTask('postmark-templates', 'Create or update PostMark template', function() {
 
     var done = this.async();
     var options = this.options();
     var _data = this.data;
+    var tmplName = _data.name || this.target;
+
     var serverToken = options.serverToken || _data.serverToken || grunt.config('secrets.serverToken') || grunt.config('secret.postmark.server_token');
 
     // Check for server token
@@ -19,11 +21,13 @@ module.exports = function(grunt) {
       grunt.fail.warn('Missing required option "serverToken" \n');
     }
 
-    // Check for required attributes
-    // TODO: require one of fooBody or fooFile
-    ['name', 'subject'].forEach(function(name){
-      requireProperty(name, options, _data);
-    });
+    if (!tmplName) {
+      grunt.fail.warn('Missing required property "name" \n');
+    }
+
+    if (!_data.subject) {
+      grunt.fail.warn('Missing required property "subject" \n');
+    }
 
     // Postmark lib
     var postmark = require('postmark');
@@ -38,21 +42,15 @@ module.exports = function(grunt) {
       textBody = grunt.file.read(_data.textFile);
     }
     client.createTemplate({
-        name: _data.name || options.name,
+        name: tmplName,
         textBody: textBody,
         htmlBody: htmlBody,
-        subject: _data.subject || options.subject,
+        subject: _data.subject,
     }, function(err, response) {
       handleResponse(err, response, done);
     });
 
   });
-
-  function requireProperty(name, options, data) {
-    if (!data[name] && !options[name]) {
-      grunt.fail.warn('Missing required property "' + name + '" \n');
-    }
-  }
 
   function handleResponse(err, response, done) {
     if (err){
@@ -60,8 +58,9 @@ module.exports = function(grunt) {
       done();
     } else {
       var templateId = response.TemplateId;
-      successMessage(templateId);
-      done(templateId);
+      var name = response.Name;
+      successMessage(name, templateId);
+      done({name: name, templateId: templateId});
     }
   }
 
@@ -69,8 +68,9 @@ module.exports = function(grunt) {
     grunt.log.warn('Error response: ' + JSON.stringify(response));
   }
 
-  function successMessage(templateId) {
-    grunt.log.writeln('Template pushed: ' + JSON.stringify(templateId));
+  function successMessage(name, templateId) {
+    grunt.log.writeln('Template ' + name + ' pushed: ' + JSON.stringify(templateId));
+
   }
 
 };

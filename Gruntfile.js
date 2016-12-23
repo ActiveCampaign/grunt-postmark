@@ -7,6 +7,7 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     secrets: grunt.file.exists('secrets.json') ? grunt.file.readJSON('secrets.json') : {},
+    templates: grunt.file.exists('templates.json') ? grunt.file.readJSON('templates.json') : null,
 
     /* Postmark
     ------------------------------------------------- */
@@ -28,19 +29,6 @@ module.exports = function(grunt) {
       }
     },
 
-    'postmark-templates': {
-      options: {
-        serverToken: '<%= secrets.serverToken %>',
-      },
-      build: {
-        name: 'testing-template-node-js-' + new Date().valueOf(),
-        subject: 'Testing grunt-postmark-templates',
-        // NOTE these are read from filesystem. globbing not supported
-        htmlFile: 'test/email.html',
-        textFile: 'test/email.txt',
-      }
-    },
-
     'postmark-servers': {
       options: {
         name: 'testing-server-' + new Date().valueOf(),
@@ -51,12 +39,38 @@ module.exports = function(grunt) {
       },
     },
 
+    'postmark-templates': {
+      build: {
+        name: 'testing-template-node-js-' + new Date().valueOf(),
+        subject: 'Testing grunt-postmark-templates',
+        // NOTE these are read from filesystem. globbing not supported
+        htmlFile: 'test/confirm_email.html',
+        textFile: 'test/confirm_email.txt',
+      }
+    },
+
+    'update-templates': {
+      'templates': {
+        // key is used as template name
+        test_email: {
+            subject: 'Testing grunt postmark-update-templates task',
+            htmlFile: 'test/confirm_email.html',
+            textFile: 'test/confirm_email.txt',
+        }
+      }
+    }
+
   });
 
   grunt.loadTasks('tasks');
 
   // test create of an existing server (by name),
   grunt.registerTask('duplicate-server', ['postmark-servers']);
+
+  grunt.registerTask('update-templates', 'create or update a set of templates', function() {
+    grunt.config.set('postmark-templates', grunt.config('templates') || grunt.config('update-templates.templates'));
+    grunt.task.run('postmark-templates');
+  });
 
   grunt.registerTask('default', ['postmark', 'postmark-templates', 'postmark-servers', 'duplicate-server']);
 

@@ -8,7 +8,10 @@ module.exports = function(grunt) {
   'use strict';
 
   grunt.registerTask('postmark-templates', 'create or update a set of templates', function() {
-    grunt.config.set('_postmark-template', grunt.config('templates') || grunt.config('postmark-templates'));
+    var templates = grunt.config('templates') || grunt.config('postmark-templates');
+    templates = templates || grunt.file.exists('templates.json') ? grunt.file.readJSON('templates.json') : null;
+
+    grunt.config.set('_postmark-template', templates);
     grunt.task.run('_postmark-template');
   });
 

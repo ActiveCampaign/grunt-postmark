@@ -6,7 +6,7 @@
 module.exports = function(grunt) {
 
   grunt.initConfig({
-    secrets: grunt.file.readJSON('secrets.json'),
+    secrets: grunt.file.exists('secrets.json') ? grunt.file.readJSON('secrets.json') : {},
 
     /* Postmark
     ------------------------------------------------- */

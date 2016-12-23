@@ -12,9 +12,10 @@ module.exports = function(grunt) {
     var done = this.async();
     var options = this.options();
     var _data = this.data;
+    var serverToken = options.serverToken || _data.serverToken || grunt.config('secrets.serverToken') || grunt.config('secret.postmark.server_token');
 
     // Check for server token
-    if (!options.serverToken && !_data.serverToken) {
+    if (!serverToken) {
       grunt.fail.warn('Missing required option "serverToken" \n');
     }
 
@@ -26,7 +27,7 @@ module.exports = function(grunt) {
 
     // Postmark lib
     var postmark = require('postmark');
-    var client = new postmark.Client(options.serverToken || _data.serverToken);
+    var client = new postmark.Client(serverToken);
     var htmlBody = _data.htmlBody || options.htmlBody;
     var textBody = _data.textBody || options.textBody;
 

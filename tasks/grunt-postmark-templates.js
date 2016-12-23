@@ -40,11 +40,11 @@ module.exports = function(grunt) {
     var htmlBody = _data.htmlBody || options.htmlBody;
     var textBody = _data.textBody || options.textBody;
 
-    if (_data.htmlFile) {
-      htmlBody = grunt.file.read(_data.htmlFile);
+    if (_data.htmlBody) {
+      htmlBody = grunt.file.read(htmlBody);
     }
-    if (_data.textFile) {
-      textBody = grunt.file.read(_data.textFile);
+    if (_data.textBody) {
+      textBody = grunt.file.read(textBody);
     }
     client.createTemplate({
         name: tmplName,

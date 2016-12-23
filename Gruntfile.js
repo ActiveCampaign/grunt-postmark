@@ -45,8 +45,8 @@ module.exports = function(grunt) {
         name: 'testing-postmark-templates-js-' + new Date().valueOf(),
         subject: 'Testing grunt-postmark-templates',
         // NOTE these are read from filesystem. globbing not supported
-        htmlFile: 'test/email.html',
-        textFile: 'test/email.txt',
+        htmlBody: 'test/email.html',
+        textBody: 'test/email.txt',
       }
     }
 

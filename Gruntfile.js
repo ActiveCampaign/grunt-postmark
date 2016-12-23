@@ -44,18 +44,19 @@ module.exports = function(grunt) {
         name: 'testing-template-node-js-' + new Date().valueOf(),
         subject: 'Testing grunt-postmark-templates',
         // NOTE these are read from filesystem. globbing not supported
-        htmlFile: 'test/confirm_email.html',
-        textFile: 'test/confirm_email.txt',
+        htmlFile: 'test/email.html',
+        textFile: 'test/email.txt',
       }
     },
 
+    // you can either specify the template configuration here, or in templates.json
     'update-templates': {
       'templates': {
         // key is used as template name
         test_email: {
-            subject: 'Testing grunt postmark-update-templates task',
-            htmlFile: 'test/confirm_email.html',
-            textFile: 'test/confirm_email.txt',
+          subject: 'Testing grunt postmark-update-templates task',
+          htmlFile: 'test/email.html',
+          textFile: 'test/email.txt',
         }
       }
     }

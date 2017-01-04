@@ -29,6 +29,16 @@ module.exports = function(grunt) {
       }
     },
 
+    'postmark-servers': {
+      options: {
+        name: 'testing-server-' + new Date().valueOf(),
+        smtpApiActivated: true,
+
+        // NOTE complete list of server attributes:
+        // http://developer.postmarkapp.com/developer-api-servers.html#create-server
+      },
+    },
+
     // you can either specify the template configuration here, or in templates.json
     'postmark-templates': {
       test_email_file: {
@@ -44,6 +54,9 @@ module.exports = function(grunt) {
 
   grunt.loadTasks('tasks');
 
-  grunt.registerTask('default', ['postmark', 'postmark-templates']);
+  // test create of an existing server (by name),
+  grunt.registerTask('duplicate-server', ['postmark-servers']);
+
+  grunt.registerTask('default', ['postmark', 'postmark-templates', 'postmark-servers', 'duplicate-server']);
 
 };

@@ -7,6 +7,30 @@ module.exports = function(grunt) {
 
   'use strict';
 
+  // There are a number of different ways to populate this configuration object,
+  // including gruntfile configuration for "postmark-templates",
+  // or a templates.json file in your project.
+  //
+  // The object should have the following format, using the template name as the key.
+  // Here is an example templates.json file from a Mailmason project:
+  //
+  // {
+  //   "confirm_email": {
+  //     "subject": "Please confirm your email",
+  //     "htmlBody": "dist/confirm_email.html",
+  //     "textBody": "dist/confirm_email.txt",
+  //     "templateId": 1201660
+  //   }
+  // }
+  //
+  // templateId is optional; if present, the template with the given ID will be updated. This will prevent
+  // proliferation of outdated versions of templates with the same name, and depending on how you're using
+  // them, reduce the configuration overhead (for example publishing these templateIds to your backend).
+  //
+  // The postmark-templates task will write an output file in this format including the current templateId.
+  // The default output file is named templates-output.json. You may ignore this file, or manually copy it
+  // to templates.json after a successful run.
+
   grunt.registerTask('postmark-templates', 'create or update a set of templates', function() {
     var templates = grunt.config('templates') || grunt.config('postmark-templates');
     templates = templates || (grunt.file.exists('templates.json') ? grunt.file.readJSON('templates.json') : null);
@@ -25,7 +49,6 @@ module.exports = function(grunt) {
 
     var serverToken = options.serverToken || grunt.config('secrets.serverToken') || grunt.config('secret.postmark.server_token');
 
-    // Check for server token
     if (!serverToken) {
       grunt.fail.warn('Missing required option "serverToken" \n');
     }
@@ -55,7 +78,16 @@ module.exports = function(grunt) {
 
     if (template.templateId) {
       client.editTemplate(template.templateId, expanded, function(err, response) {
-        handleResponse(template, err, response, done);
+        if (err && err.code === 1101) {
+          grunt.log.warn('Template ' + template.templateId + ' not found, so attempting create');
+          delete template.templateId;
+          delete expanded.templateId;
+          client.createTemplate(expanded, function(err, response) {
+            handleResponse(template, err, response, done);
+          });
+        } else {
+          handleResponse(template, err, response, done);
+        }
       });
     } else {
       client.createTemplate(expanded, function(err, response) {

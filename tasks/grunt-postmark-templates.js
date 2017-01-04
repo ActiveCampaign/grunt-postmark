@@ -52,10 +52,16 @@ module.exports = function(grunt) {
     if (expanded.textBody) {
       expanded.textBody = grunt.file.read(expanded.textBody);
     }
-    
-    client.createTemplate(expanded, function(err, response) {
-      handleResponse(template, err, response, done);
-    });
+
+    if (template.templateId) {
+      client.editTemplate(template.templateId, expanded, function(err, response) {
+        handleResponse(template, err, response, done);
+      });
+    } else {
+      client.createTemplate(expanded, function(err, response) {
+        handleResponse(template, err, response, done);
+      });
+    }
 
   });
 

@@ -1,5 +1,7 @@
 /*
  * grunt-postmark-templates
+ * push templates to a Postmark server for use with SendTemplatedEmail
+ *
  * https://github.com/wildbit/grunt-postmark.git
  */
 

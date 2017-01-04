@@ -29,16 +29,6 @@ module.exports = function(grunt) {
       }
     },
 
-    'postmark-servers': {
-      options: {
-        name: 'testing-server-' + new Date().valueOf(),
-        smtpApiActivated: true,
-
-        // NOTE complete list of server attributes:
-        // http://developer.postmarkapp.com/developer-api-servers.html#create-server
-      },
-    },
-
     // you can either specify the template configuration here, or in templates.json
     'postmark-templates': {
       test_email_file: {

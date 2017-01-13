@@ -7,7 +7,6 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     secrets: grunt.file.exists('secrets.json') ? grunt.file.readJSON('secrets.json') : {},
-    templates: grunt.file.exists('templates.json') ? grunt.file.readJSON('templates.json') : null,
 
     /* Postmark
     ------------------------------------------------- */
@@ -31,8 +30,15 @@ module.exports = function(grunt) {
 
     // you can either specify the template configuration here, or in templates.json
     'postmark-templates': {
-      test_email_file: {
-        name: 'testing-postmark-templates-js-' + new Date().valueOf(),
+      test_email: {
+        name: 'testing-postmark-templates-js1-' + new Date().valueOf(),
+        subject: 'Testing grunt-postmark-templates',
+        // NOTE these are read from filesystem. globbing not supported
+        htmlBody: 'test/email.html',
+        textBody: 'test/email.txt',
+      },
+      test_email_again: {
+        name: 'testing-postmark-templates-js2-' + new Date().valueOf(),
         subject: 'Testing grunt-postmark-templates',
         // NOTE these are read from filesystem. globbing not supported
         htmlBody: 'test/email.html',
@@ -43,6 +49,9 @@ module.exports = function(grunt) {
   });
 
   grunt.loadTasks('tasks');
+
+  // you can also get a JSON report of uploaded templates (default filename: templates-output.json)
+  grunt.registerTask('all-templates', ['postmark-templates', 'postmark-templates-output']);
 
   grunt.registerTask('default', ['postmark', 'postmark-templates']);
 

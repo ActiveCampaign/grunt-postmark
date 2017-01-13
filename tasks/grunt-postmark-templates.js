@@ -85,21 +85,21 @@ module.exports = function(grunt) {
           delete template.templateId;
           delete expanded.templateId;
           client.createTemplate(expanded, function(err, response) {
-            handleResponse(template, err, response, done);
+            handleResponse(err, response, done, template);
           });
         } else {
-          handleResponse(template, err, response, done);
+          handleResponse(err, response, done, template);
         }
       });
     } else {
       client.createTemplate(expanded, function(err, response) {
-        handleResponse(template, err, response, done);
+        handleResponse(err, response, done, template);
       });
     }
 
   });
 
-  function handleResponse(template, err, response, done) {
+  function handleResponse(err, response, done, template) {
     if (err){
       errorMessage(err);
       done();

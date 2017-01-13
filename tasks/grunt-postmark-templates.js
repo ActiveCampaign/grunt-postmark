@@ -52,13 +52,16 @@ module.exports = function(grunt) {
           delete expanded.templateId;
           client.createTemplate(expanded, function(err, response) {
             handleResponse(err, response, done, template);
+            grunt.log.writeln('Template ' + template.name + ' created: ' + JSON.stringify(response.TemplateId));
           });
         } else {
+          grunt.log.writeln('Template ' + template.name + ' updated: ' + JSON.stringify(response.TemplateId));
           handleResponse(err, response, done, template);
         }
       });
     } else {
       client.createTemplate(expanded, function(err, response) {
+        grunt.log.writeln('Template ' + template.name + ' created: ' + JSON.stringify(response.TemplateId));
         handleResponse(err, response, done, template);
       });
     }
@@ -71,14 +74,13 @@ module.exports = function(grunt) {
       done();
     } else {
       template.templateId = response.TemplateId;
-      // append this record to the result array
+      // append this record to the result array, used by postmark-templates-output task
       var upd = grunt.config.get('updatedTemplates') || {};
       var tname = template.name;
       delete template.name;
       upd[tname] = template;
       grunt.config.set('updatedTemplates', upd);
 
-      successMessage(tname, template.templateId);
       done(template);
     }
   }
@@ -89,10 +91,6 @@ module.exports = function(grunt) {
     } else {
       grunt.log.warn('Error: ' + JSON.stringify(err));
     }
-  }
-
-  function successMessage(name, templateId) {
-    grunt.log.writeln('Template ' + name + ' pushed: ' + JSON.stringify(templateId));
   }
 
   // invoke this task after postmark-templates to get an output file containing the resulting template IDs

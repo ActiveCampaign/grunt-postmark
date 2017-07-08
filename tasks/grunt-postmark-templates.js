@@ -5,30 +5,32 @@
  * https://github.com/wildbit/grunt-postmark.git
  */
 
-module.exports = function(grunt) {
-
-  'use strict';
-
-  grunt.registerMultiTask('postmark-templates', 'Create or update Postmark templates', function() {
-
+module.exports = function (grunt) {
+  grunt.registerMultiTask('postmark-templates-upload', 'Create or update Postmark templates', function () {
     var done = this.async();
     var options = this.options();
     var template = this.data;
 
-    var serverToken = options.serverToken || grunt.config('secrets.serverToken') || grunt.config('secret.postmark.server_token');
+    var serverToken = options.serverToken || grunt.config('secret.postmark.server_token');
 
     if (!serverToken) {
-      grunt.fail.warn('Missing required option "serverToken" \n');
+      grunt.fail.warn('Missing Postmark server token \n');
     }
 
-    template.name = template.name || this.target;
-
-    if (!template.name) {
-      grunt.fail.warn('Missing required template property "name" \n');
+    if (!template.Name) {
+      grunt.fail.warn('Missing required template property "Name" \n');
     }
 
-    if (!template.subject) {
-      grunt.fail.warn('Missing required template property "subject" \n');
+    if (!template.Subject) {
+      grunt.fail.warn('Missing required template property "Subject" \n');
+    }
+
+    if (!template.HtmlBody) {
+      grunt.log.error('Missing template property "HtmlBody" \n');
+    }
+
+    if (!template.TextBody) {
+      grunt.log.error('Missing template property "TextBody" \n');
     }
 
     var postmark = require('postmark');
@@ -37,31 +39,24 @@ module.exports = function(grunt) {
     // read the referenced files, but hold on to the original filenames
     var expanded = Object.assign({}, template);
 
-    if (expanded.htmlBody) {
-      expanded.htmlBody = grunt.file.read(expanded.htmlBody);
-    }
-    if (expanded.textBody) {
-      expanded.textBody = grunt.file.read(expanded.textBody);
-    }
-
-    if (template.templateId) {
-      client.editTemplate(template.templateId, expanded, function(err, response) {
+    if (template.TemplateId) {
+      client.editTemplate(template.TemplateId, expanded, function (err, response) {
         if (err && err.code === 1101) {
-          grunt.log.warn('Template ' + template.templateId + ' not found, so attempting create');
-          delete template.templateId;
-          delete expanded.templateId;
-          client.createTemplate(expanded, function(err, response) {
+          grunt.log.warn('Template ' + template.TemplateId + ' not found, so attempting create');
+          delete template.TemplateId;
+          delete expanded.TemplateId;
+          client.createTemplate(expanded, function (err, response) {
+            grunt.log.writeln('Template ' + template.Name + ' created: ' + JSON.stringify(response.TemplateId));
             handleResponse(err, response, done, template);
-            grunt.log.writeln('Template ' + template.name + ' created: ' + JSON.stringify(response.TemplateId));
           });
         } else {
-          grunt.log.writeln('Template ' + template.name + ' updated: ' + JSON.stringify(response.TemplateId));
+          grunt.log.writeln('Template ' + template.Name + ' updated: ' + JSON.stringify(response.TemplateId));
           handleResponse(err, response, done, template);
         }
       });
     } else {
-      client.createTemplate(expanded, function(err, response) {
-        grunt.log.writeln('Template ' + template.name + ' created: ' + JSON.stringify(response.TemplateId));
+      client.createTemplate(expanded, function (err, response) {
+        grunt.log.writeln('Template ' + template.Name + ' created: ' + JSON.stringify(response.TemplateId));
         handleResponse(err, response, done, template);
       });
     }
@@ -73,15 +68,13 @@ module.exports = function(grunt) {
       errorMessage(err);
       done();
     } else {
-      template.templateId = response.TemplateId;
-      // append this record to the result array, used by postmark-templates-output task
-      var upd = grunt.config.get('updatedTemplates') || {};
-      var tname = template.name;
-      delete template.name;
-      upd[tname] = template;
-      grunt.config.set('updatedTemplates', upd);
+      template.TemplateId = response.TemplateId;
+      // compile the templates for use by the `postmark-templates-output` task
+      var updatedTemplates = grunt.config.get('updatedTemplates') || {};
+      updatedTemplates[template.Name] = template;
+      grunt.config.set('updatedTemplates', updatedTemplates);
 
-      done(template);
+      done();
     }
   }
 
@@ -96,18 +89,30 @@ module.exports = function(grunt) {
   // invoke this task after postmark-templates to get an output file containing the resulting template IDs
   // this is in the same format as the postmark-templates config.
 
-  grunt.registerTask('postmark-templates-output', 'writes out the resulting template IDs', function() {
-
+  grunt.registerTask('postmark-templates-output', 'Write out the resulting template IDs', function () {
     var options = this.options({
-      filename: "templates-output.json"
+      cleanOutput: false
+    });
+    var updatedTemplates = grunt.config('updatedTemplates');
+    var oldTemplates = grunt.file.read(options.outputFile);
+
+    Object.keys(updatedTemplates).forEach(function (updatedTemplateKey) {
+      updatedTemplates[updatedTemplateKey] = Object.assign(
+        oldTemplates[updatedTemplateKey] || {},
+        updatedTemplates[updatedTemplateKey]
+      );
+
+      if (options.cleanOutput) {
+        delete updatedTemplates[updatedTemplateKey].HtmlBody;
+        delete updatedTemplates[updatedTemplateKey].TextBody;
+      }
     });
 
-    var results = grunt.config('updatedTemplates');
-
-    grunt.file.write(options.filename, JSON.stringify(results, null, 2));
-
-    grunt.log.writeln("Updated template information written to " + options.filename);
+    grunt.file.write(options.outputFile, JSON.stringify(updatedTemplates, null, 2));
+    grunt.log.writeln("Updated template information written to " + options.outputFile);
 
   });
 
+  // you can also get a JSON report of uploaded templates
+  grunt.registerTask('postmark-templates', ['postmark-templates-upload', 'postmark-templates-output']);
 };

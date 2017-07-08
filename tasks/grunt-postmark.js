@@ -66,7 +66,13 @@ module.exports = function(grunt) {
 
 
   function handleResponse(err, response, done) {
-    var _ = err ? errorMessage(err) : successMessage(response);
+    if (err) {
+      errorMessage(err);
+
+    } else {
+      successMessage(response);
+    }
+
     done();
   }
 

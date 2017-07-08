@@ -1,4 +1,4 @@
 node_modules
 .idea
+config.json
 secrets.json
-templates-output.json

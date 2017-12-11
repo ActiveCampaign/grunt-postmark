@@ -6,9 +6,16 @@
  */
 
 module.exports = function (grunt) {
+  var DEFAULT_EPHEMERAL_UPLOAD_RESULTS_PROPERTY = 'postmark-templates-upload-results';
+  var DEFAULT_OUTPUT_FILE_NAME = 'templates.json';
+  var DEFAULT_CLEAN_OUTPUT = false;
+
   grunt.registerMultiTask('postmark-templates-upload', 'Create or update Postmark templates', function () {
     var done = this.async();
-    var options = this.options();
+    var options = this.options({
+      ephemeralUploadResultsProperty: DEFAULT_EPHEMERAL_UPLOAD_RESULTS_PROPERTY
+    });
+    var ephemeralUploadResultsProperty = options.ephemeralUploadResultsProperty || DEFAULT_EPHEMERAL_UPLOAD_RESULTS_PROPERTY;
     var template = this.data;
 
     var serverToken = options.serverToken || grunt.config('secret.postmark.server_token');
@@ -17,62 +24,67 @@ module.exports = function (grunt) {
       grunt.fail.warn('Missing Postmark server token \n');
     }
 
-    if (!template.Name) {
-      grunt.fail.warn('Missing required template property "Name" \n');
+    if (!template.name) {
+      grunt.fail.warn('Missing required template property "name" \n');
     }
 
-    if (!template.Subject) {
-      grunt.fail.warn('Missing required template property "Subject" \n');
+    if (!template.subject) {
+      grunt.fail.warn('Missing required template property "subject" \n');
     }
 
-    if (!template.HtmlBody) {
-      grunt.log.error('Missing template property "HtmlBody" \n');
+    if (!template.htmlBody && !template.htmlSrc) {
+      grunt.log.error('Missing template property "htmlBody" or "htmlSrc"\n');
     }
 
-    if (!template.TextBody) {
-      grunt.log.error('Missing template property "TextBody" \n');
+    if (!template.textBody && !template.textSrc) {
+      grunt.log.error('Missing template property "textBody" or "textSrc"\n');
     }
 
     var postmark = require('postmark');
     var client = new postmark.Client(serverToken);
 
     // read the referenced files, but hold on to the original filenames
-    var expanded = Object.assign({}, template);
+    var expanded = {
+      Name: template.name,
+      Subject: template.subject,
+      HtmlBody: template.htmlBody || grunt.file.read(template.htmlSrc),
+      TextBody: template.textBody || grunt.file.read(template.textSrc),
+      TemplateId: template.templateId,
+    };
 
-    if (template.TemplateId) {
-      client.editTemplate(template.TemplateId, expanded, function (err, response) {
+    if (expanded.TemplateId) {
+      client.editTemplate(expanded.TemplateId, expanded, function (err, response) {
         if (err && err.code === 1101) {
-          grunt.log.warn('Template ' + template.TemplateId + ' not found, so attempting create');
-          delete template.TemplateId;
+          grunt.log.warn('Template ' + expanded.TemplateId + ' not found, so attempting create');
+          delete template.templateId;
           delete expanded.TemplateId;
-          client.createTemplate(expanded, function (err, response) {
-            grunt.log.writeln('Template ' + template.Name + ' created: ' + JSON.stringify(response.TemplateId));
-            handleResponse(err, response, done, template);
+          client.createTemplate(expanded.TemplateId, function (err, response) {
+            grunt.log.writeln('Template ' + expanded.Name + ' created: ' + JSON.stringify(response.TemplateId));
+            handleResponse(err, done, response, template, ephemeralUploadResultsProperty);
           });
         } else {
-          grunt.log.writeln('Template ' + template.Name + ' updated: ' + JSON.stringify(response.TemplateId));
-          handleResponse(err, response, done, template);
+          grunt.log.writeln('Template ' + expanded.Name + ' updated: ' + JSON.stringify(response.TemplateId));
+          handleResponse(err, done, response, template, ephemeralUploadResultsProperty);
         }
       });
     } else {
       client.createTemplate(expanded, function (err, response) {
-        grunt.log.writeln('Template ' + template.Name + ' created: ' + JSON.stringify(response.TemplateId));
-        handleResponse(err, response, done, template);
+        grunt.log.writeln('Template ' + expanded.Name + ' created: ' + JSON.stringify(response.TemplateId));
+        handleResponse(err, done, response, template, ephemeralUploadResultsProperty);
       });
     }
-
   });
 
-  function handleResponse(err, response, done, template) {
+  function handleResponse(err, done, response, template, ephemeralUploadResultsProperty) {
     if (err){
       errorMessage(err);
       done();
     } else {
-      template.TemplateId = response.TemplateId;
+      template.templateId = response.TemplateId;
       // compile the templates for use by the `postmark-templates-output` task
-      var updatedTemplates = grunt.config.get('updatedTemplates') || {};
-      updatedTemplates[template.Name] = template;
-      grunt.config.set('updatedTemplates', updatedTemplates);
+      var updatedTemplates = grunt.config.get(ephemeralUploadResultsProperty) || {};
+      updatedTemplates[template.name] = template;
+      grunt.config.set(ephemeralUploadResultsProperty, updatedTemplates);
 
       done();
     }
@@ -91,10 +103,17 @@ module.exports = function (grunt) {
 
   grunt.registerTask('postmark-templates-output', 'Write out the resulting template IDs', function () {
     var options = this.options({
-      cleanOutput: false
+      cleanOutput: DEFAULT_CLEAN_OUTPUT,
+      outputFile: DEFAULT_OUTPUT_FILE_NAME,
+      ephemeralUploadResultsProperty: DEFAULT_EPHEMERAL_UPLOAD_RESULTS_PROPERTY
     });
-    var updatedTemplates = grunt.config('updatedTemplates');
-    var oldTemplates = grunt.file.read(options.outputFile);
+    var ephemeralUploadResultsProperty = options.ephemeralUploadResultsProperty || DEFAULT_EPHEMERAL_UPLOAD_RESULTS_PROPERTY;
+    var outputFile = options.outputFile || DEFAULT_OUTPUT_FILE_NAME;
+    var cleanOutput = options.cleanOutput || DEFAULT_CLEAN_OUTPUT;
+    var updatedTemplates = grunt.config(ephemeralUploadResultsProperty);
+    var oldTemplates = grunt.file.exists(outputFile)
+      ? grunt.file.read(outputFile)
+      : {};
 
     Object.keys(updatedTemplates).forEach(function (updatedTemplateKey) {
       updatedTemplates[updatedTemplateKey] = Object.assign(
@@ -102,15 +121,16 @@ module.exports = function (grunt) {
         updatedTemplates[updatedTemplateKey]
       );
 
-      if (options.cleanOutput) {
-        delete updatedTemplates[updatedTemplateKey].HtmlBody;
-        delete updatedTemplates[updatedTemplateKey].TextBody;
+      if (cleanOutput) {
+        delete updatedTemplates[updatedTemplateKey].htmlBody;
+        delete updatedTemplates[updatedTemplateKey].textBody;
+        delete updatedTemplates[updatedTemplateKey].htmlSrc;
+        delete updatedTemplates[updatedTemplateKey].textSrc;
       }
     });
 
-    grunt.file.write(options.outputFile, JSON.stringify(updatedTemplates, null, 2));
-    grunt.log.writeln("Updated template information written to " + options.outputFile);
-
+    grunt.file.write(outputFile, JSON.stringify(updatedTemplates, null, 2));
+    grunt.log.writeln("Updated template information written to " + outputFile);
   });
 
   // you can also get a JSON report of uploaded templates

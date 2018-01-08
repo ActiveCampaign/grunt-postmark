@@ -11,6 +11,6 @@
   "templates": {
     "ephemeralUploadResultsProperty": "postmark-templates-upload-results",
     "cleanOutput": true,
-    "outputFile": "templates.json"
+    "file": "templates.json"
   }
 }

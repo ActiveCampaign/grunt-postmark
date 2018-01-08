@@ -57,10 +57,16 @@ module.exports = function (grunt) {
 
     "postmark-templates-output": {
       options: {
-        cleanOutput: "<%= config.templates && config.templates.cleanOutput %>",
-        outputFile: "<%= config.templates && config.templates.outputFile %>",
-        ephemeralUploadResultsProperty: "<%= config.templates && config.templates.ephemeralUploadResultsProperty %>"
-      },
+          cleanOutput: "<%= config.templates && config.templates.cleanOutput %>",
+          outputFile: "<%= config.templates && config.templates.outputFile || config.templates && config.templates.file %>",
+          ephemeralUploadResultsProperty: "<%= config.templates && config.templates.ephemeralUploadResultsProperty %>"
+      }
+    },
+
+    "postmark-templates-parse": {
+      options: {
+        inputFile: "<%= config.templates && config.templates.inputFile || config.templates && config.templates.file %>"
+      }
     }
   });
 

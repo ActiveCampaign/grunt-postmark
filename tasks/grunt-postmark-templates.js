@@ -10,6 +10,20 @@ module.exports = function (grunt) {
   var DEFAULT_OUTPUT_FILE_NAME = 'templates.json';
   var DEFAULT_CLEAN_OUTPUT = false;
 
+  grunt.registerTask('postmark-templates-parse', 'Parse Postmark templates for update', function () {
+    var options = this.options({
+      inputFile: DEFAULT_OUTPUT_FILE_NAME
+    });
+    var templateObjects = grunt.file.readJSON(options.inputFile || DEFAULT_OUTPUT_FILE_NAME);
+
+    grunt.config.set('postmark-templates-upload', Object.assign(
+      templateObjects,
+      {
+        options: grunt.config.get('postmark-templates-upload.options')
+      }
+    ));
+  });
+
   grunt.registerMultiTask('postmark-templates-upload', 'Create or update Postmark templates', function () {
     var done = this.async();
     var options = this.options({
@@ -49,7 +63,7 @@ module.exports = function (grunt) {
       Subject: template.subject,
       HtmlBody: template.htmlBody || grunt.file.read(template.htmlSrc),
       TextBody: template.textBody || grunt.file.read(template.textSrc),
-      TemplateId: template.templateId,
+      TemplateId: template.templateId
     };
 
     if (expanded.TemplateId) {
@@ -134,5 +148,7 @@ module.exports = function (grunt) {
   });
 
   // you can also get a JSON report of uploaded templates
-  grunt.registerTask('postmark-templates', ['postmark-templates-upload', 'postmark-templates-output']);
+  grunt.registerTask('postmark-templates-from-targets', ['postmark-templates-upload', 'postmark-templates-output']);
+  grunt.registerTask('postmark-templates-from-file', ['postmark-templates-parse', 'postmark-templates-from-targets']);
+  grunt.registerTask('postmark-templates', ['postmark-templates-from-targets']);
 };

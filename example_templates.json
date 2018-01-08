@@ -1,0 +1,20 @@
+{
+  "test_email": {
+    "name": "testing-postmark-templates-js1",
+    "subject": "Testing grunt-postmark-templates",
+    "htmlSrc": "test/email.html",
+    "textSrc": "test/email.txt"
+  },
+  "test_email_again": {
+    "name": "testing-postmark-templates-js2",
+    "subject": "Testing grunt-postmark-templates (again)",
+    "htmlSrc": "test/email.html",
+    "textSrc": "test/email.txt"
+  },
+  "test_email_inline_body": {
+    "name": "testing-postmark-templates-js3",
+    "subject": "Testing grunt-postmark-templates (inline body)",
+    "htmlBody": "<html><body><h1>Another email test</h1></body></html>",
+    "textBody": "Hello from grunt-postmark-templates\n"
+  }
+}

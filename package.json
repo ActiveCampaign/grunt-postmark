@@ -1,6 +1,6 @@
 {
   "name": "grunt-postmark",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Send emails through Postmark using GruntJS",
   "main": "Gruntfile.js",
   "homepage": "https://github.com/wildbit/grunt-postmark.git",
@@ -18,7 +18,6 @@
     "name": "Derek Rushforth",
     "email": "derek@wildbit.com"
   },
-  "main": "Gruntfile.js",
   "license": "MIT",
   "devDependencies": {
     "grunt": "^1.0.1"

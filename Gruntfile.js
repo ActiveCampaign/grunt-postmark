@@ -33,7 +33,8 @@ module.exports = function (grunt) {
 
     "postmark-templates-upload": {
       options: {
-        ephemeralUploadResultsProperty: "<%= config.templates && config.templates.ephemeralUploadResultsProperty %>"
+        ephemeralUploadResultsProperty: "<%= config.templates && config.templates.ephemeralUploadResultsProperty %>",
+        serverToken: "<%= secret.postmark.server_token %>"
       },
       test_email: {
         name: "testing-postmark-templates-js1-" + new Date().valueOf(),

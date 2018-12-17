@@ -63,27 +63,36 @@ module.exports = function (grunt) {
       Subject: template.subject,
       HtmlBody: template.htmlBody || grunt.file.read(template.htmlSrc),
       TextBody: template.textBody || grunt.file.read(template.textSrc),
-      TemplateId: template.templateId
+      TemplateId: template.templateId,
+      TemplateAlias: template.templateAlias
     };
 
-    if (expanded.TemplateId) {
-      client.editTemplate(expanded.TemplateId, expanded, function (err, response) {
+    var templateIdentifier = expanded.TemplateId || expanded.TemplateAlias;
+
+    function printResponse (response) {
+      return JSON.stringify(response.TemplateId + (response.Alias ? ' [alias: ' + response.Alias + ']' : ''));
+    }
+
+    if (templateIdentifier) {
+      client.editTemplate(templateIdentifier, expanded, function (err, response) {
         if (err && err.code === 1101) {
-          grunt.log.warn('Template ' + expanded.TemplateId + ' not found, so attempting create');
+          grunt.log.warn('Template ' + templateIdentifier + ' not found, so attempting create');
           delete template.templateId;
           delete expanded.TemplateId;
-          client.createTemplate(expanded.TemplateId, function (err, response) {
-            grunt.log.writeln('Template ' + expanded.Name + ' created: ' + JSON.stringify(response.TemplateId));
+          delete template.templateAlias;
+          delete expanded.TemplateAlias;
+          client.createTemplate(templateIdentifier, function (err, response) {
+            grunt.log.writeln('Template ' + expanded.Name + ' created: ' + printResponse(response));
             handleResponse(err, done, response, template, ephemeralUploadResultsProperty);
           });
         } else {
-          grunt.log.writeln('Template ' + expanded.Name + ' updated: ' + JSON.stringify(response.TemplateId));
+          grunt.log.writeln('Template ' + expanded.Name + ' updated: ' + printResponse(response));
           handleResponse(err, done, response, template, ephemeralUploadResultsProperty);
         }
       });
     } else {
       client.createTemplate(expanded, function (err, response) {
-        grunt.log.writeln('Template ' + expanded.Name + ' created: ' + JSON.stringify(response.TemplateId));
+        grunt.log.writeln('Template ' + expanded.Name + ' created: ' + printResponse(response));
         handleResponse(err, done, response, template, ephemeralUploadResultsProperty);
       });
     }
@@ -95,6 +104,7 @@ module.exports = function (grunt) {
       done();
     } else {
       template.templateId = response.TemplateId;
+      template.templateAlias = response.Alias;
       // compile the templates for use by the `postmark-templates-output` task
       var updatedTemplates = grunt.config.get(ephemeralUploadResultsProperty) || {};
       updatedTemplates[template.name] = template;

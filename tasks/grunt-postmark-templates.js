@@ -79,9 +79,7 @@ module.exports = function (grunt) {
           grunt.log.warn('Template ' + templateIdentifier + ' not found, so attempting create');
           delete template.templateId;
           delete expanded.TemplateId;
-          delete template.templateAlias;
-          delete expanded.TemplateAlias;
-          client.createTemplate(templateIdentifier, function (err, response) {
+          client.createTemplate(expanded, function (err, response) {
             grunt.log.writeln('Template ' + expanded.Name + ' created: ' + printResponse(response));
             handleResponse(err, done, response, template, ephemeralUploadResultsProperty);
           });

@@ -20,7 +20,9 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "grunt": "^1.0.1"
+    "chai": "^4.2.0",
+    "grunt": "^1.0.1",
+    "mocha": "^5.2.0"
   },
   "keywords": [
     "postmark",

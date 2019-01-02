@@ -21,13 +21,13 @@ module.exports = function (grunt) {
         from: "<%= config.postmark.from %>",
         to: "<%= config.postmark.to %>",
         subject: "<%= config.postmark.subject %>",
-        src: ["test/email.html"]
+        src: ["test/emails/email.html"]
       },
       bulk: {
         from: "<%= config.postmark.from %>",
         to: "<%= config.postmark.to %>",
         subject: "<%= config.postmark.subject %>",
-        src: ["test/*.html"]
+        src: ["test/emails/*.html"]
       }
     },
 

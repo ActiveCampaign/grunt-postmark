@@ -4,18 +4,18 @@
  */
 
 module.exports = function (grunt) {
-  var secret = grunt.file.readJSON('secrets.json');
-  var config = grunt.file.readJSON('config.json');
+  var secrets = grunt.file.readJSON("secrets.json");
+  var config = grunt.file.readJSON("config.json");
 
   grunt.initConfig({
-    secret: secret,
+    secrets: secrets,
     config: config,
 
     /* Postmark
      ------------------------------------------------- */
     postmark: {
       options: {
-        serverToken: "<%= secret.postmark.server_token %>"
+        serverToken: "<%= secrets.postmarkServerToken %>"
       },
       email: {
         from: "<%= config.postmark.from %>",

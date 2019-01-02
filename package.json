@@ -9,7 +9,8 @@
     "url": "https://github.com/wildbit/grunt-postmark.git"
   },
   "scripts": {
-    "test": "grunt"
+    "test": "mocha test/*.test.js",
+    "test:watch": "mocha -w $(find . -name '*.test.js')"
   },
   "bugs": {
     "url": "https://github.com/wildbit/grunt-postmark/issues"

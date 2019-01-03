@@ -35,8 +35,8 @@ module.exports = (grunt) => {
     }
 
     // Set up Postmark client
-    var postmark = require('postmark');
-    var client = new postmark.Client(serverToken);
+    const postmark = require('postmark');
+    const client = new postmark.Client(serverToken);
 
     // Get templates from server
     client.getTemplates().then(result => {
@@ -94,7 +94,7 @@ module.exports = (grunt) => {
      * @param  {[type]} template [description]
      * @return {[type]}          [description]
      */
-    var getIdentifier = (template) => {
+    const getIdentifier = (template) => {
       if (template.alias) return { Alias: template.alias };
       if (template.id) return { TemplateId: template.id };
     }
@@ -103,7 +103,7 @@ module.exports = (grunt) => {
      * Ask user to confirm push
      * @param  {Function} done
      */
-    var confirmPush = (done) => {
+    const confirmPush = (done) => {
       prompt([{
         type: 'confirm',
         name: 'push',
@@ -125,7 +125,7 @@ module.exports = (grunt) => {
      * Push all the templates
      * @param  {Function} done [description]
      */
-    var pushTemplates = (done) => {
+    const pushTemplates = (done) => {
       this.localTemplates.forEach((template, index) => {
         pushTemplate(template, done)
       });
@@ -136,7 +136,7 @@ module.exports = (grunt) => {
      * @param  {Object}   template
      * @param  {Function} done
      */
-    var pushTemplate = (template, done) => {
+    const pushTemplate = (template, done) => {
       if (template.New) {
         // Add new template
         client.createTemplate(template).then(response => {
@@ -179,7 +179,7 @@ module.exports = (grunt) => {
      * Execute each time a template is pushed
      * @param  {Object} result
      */
-    var pushComplete = (result) => {
+    const pushComplete = (result) => {
       const { success, response, template, done } = result;
 
       // Update counters
@@ -208,7 +208,7 @@ module.exports = (grunt) => {
     /**
      * Prints changed files to the console
      */
-    var printReview = () => {
+    const printReview = () => {
       const { files, added, modified } = this.review;
 
       // Changed template table
@@ -233,7 +233,7 @@ module.exports = (grunt) => {
      * Validate the template configuration
      * @param  {Object} template
      */
-    var validateTemplate = (template) => {
+    const validateTemplate = (template) => {
       if (!template.alias && !template.id) {
         grunt.fail.fatal('One of your templates is missing an alias and id. Either of these are required in order to push your templates. Aliases are recommended so it’s easier to track the same template across multiple servers. Check out https://postmarkapp.com/support/article/1117-how-do-i-use-a-template-alias for more details.');
       }

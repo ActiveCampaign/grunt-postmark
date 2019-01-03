@@ -10,7 +10,7 @@ module.exports = (grunt) => {
   const inquirer = require('inquirer');
   const table = require('table');
 
-  grunt.registerTask('postmark-templates-push', 'Push templates to Postmark', function() {
+  grunt.registerMultiTask('postmark-templates-push', 'Push templates to Postmark', function() {
     this.results = {
       completed: 0,
       success: 0,

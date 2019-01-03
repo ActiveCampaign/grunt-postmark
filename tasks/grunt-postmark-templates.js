@@ -6,9 +6,9 @@
  */
 
 module.exports = (grunt) => {
-  const _ = require('lodash');
-  const inquirer = require('inquirer');
-  const table = require('table');
+  const { find, isEmpty } = require('lodash');
+  const { prompt } = require('inquirer');
+  const { table, getBorderCharacters } = require('table');
 
   grunt.registerMultiTask('postmark-templates-push', 'Push templates to Postmark', function() {
     this.review = {
@@ -46,10 +46,10 @@ module.exports = (grunt) => {
 
         // Determine template's Alias or ID
         const identifier = getIdentifier(template);
-        const existingTemplate = _.find(result.Templates, identifier);
+        const existingTemplate = find(result.Templates, identifier);
 
         // Throw error if template ID is not on server
-        if (identifier.TemplateId && _.isEmpty(existingTemplate)) {
+        if (identifier.TemplateId && isEmpty(existingTemplate)) {
           grunt.fail.fatal(`${template.name}: This template has an ID that is not on your Postmark server. You’ll need to use a correct ID or enter an alias to push this template.`);
         }
 
@@ -60,7 +60,7 @@ module.exports = (grunt) => {
         // Temporarily store this template's info
         this.localTemplates.push({
           ...identifier,
-          New: _.isEmpty(existingTemplate),
+          New: isEmpty(existingTemplate),
           Name: template.name,
           Subject: template.subject,
           HtmlBody: htmlBody,
@@ -100,7 +100,7 @@ module.exports = (grunt) => {
      * @param  {Function} done
      */
     var confirmPush = (done) => {
-      inquirer.prompt([{
+      prompt([{
         type: 'confirm',
         name: 'push',
         default: false,
@@ -205,7 +205,7 @@ module.exports = (grunt) => {
         ...files
       ];
 
-      grunt.log.writeln(table.table(list, { border: table.getBorderCharacters('norc')}));
+      grunt.log.writeln(table(list, { border: getBorderCharacters('norc')}));
 
       // Show how many templates were added or modified
       if (added > 0) {

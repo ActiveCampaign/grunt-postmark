@@ -61,6 +61,20 @@ module.exports = function (grunt) {
             "textBody": "test/emails/empty.txt"
           }
         ]
+      },
+      noConfirmation: {
+        options: {
+          showConfirmation: false
+        },
+        templates: [
+          {
+            "name": "email alias 1",
+            "alias": "email-1",
+            "subject": "subject 1",
+            "htmlBody": "test/emails/email.html",
+            "textBody": "test/emails/email.txt"
+          }
+        ]
       }
     }
   });

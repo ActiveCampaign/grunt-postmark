@@ -23,7 +23,7 @@ module.exports = (grunt) => {
     this.localTemplates = [];
 
     const done = this.async();
-    const { serverToken } = this.options();
+    const { serverToken, showConfirmation = true } = this.options();
     const { templates } = this.data;
 
     if (!serverToken) {
@@ -78,8 +78,12 @@ module.exports = (grunt) => {
       // Show files that are changing
       printReview();
 
-      // Ask user to confirm push
-      confirmPush(done);
+      if (showConfirmation) {
+        confirmPush(done);
+      } else {
+        grunt.log.writeln('Hang tight. Pushing your templates to Postmark.')
+        pushTemplates(done);
+      }
     }).catch(error => {
       grunt.fail.fatal(error);
       done(false);
@@ -109,9 +113,7 @@ module.exports = (grunt) => {
         if (answers.push) {
           grunt.log.writeln('Right on. Pushing your templates to Postmark...');
 
-          this.localTemplates.forEach((template, index) => {
-            pushTemplate(template, done)
-          });
+          pushTemplates(done);
         } else {
           grunt.log.writeln('Canceling template push.');
           done();
@@ -120,7 +122,17 @@ module.exports = (grunt) => {
     }
 
     /**
-     * Add a new template or modify an existing one
+     * Push all the templates
+     * @param  {Function} done [description]
+     */
+    var pushTemplates = (done) => {
+      this.localTemplates.forEach((template, index) => {
+        pushTemplate(template, done)
+      });
+    }
+
+    /**
+     * Push a specific template
      * @param  {Object}   template
      * @param  {Function} done
      */

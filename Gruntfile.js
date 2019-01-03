@@ -35,7 +35,7 @@ module.exports = function (grunt) {
 
     /* Push templates from your local file system to Postmark
      ------------------------------------------------- */
-    "postmark-push-templates": {
+    postmarkPushTemplates: {
       options: {
         serverToken: "<%= secrets.postmarkServerToken %>"
       },
@@ -73,7 +73,7 @@ module.exports = function (grunt) {
     /* This task will generate a boilerplate JSON config based on the templates that are currently on a specific Postmark server.
        The generated config can then be used with the "postmark-push-templates" task.
      ------------------------------------------------- */
-    "postmark-templates-config": {
+    postmarkTemplatesConfig: {
       options: {
         serverToken: "<%= secrets.postmarkServerToken %>",
         outputFile: "templates-server.example.json"

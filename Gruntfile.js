@@ -35,14 +35,14 @@ module.exports = function (grunt) {
 
     /* Push templates from your local file system to Postmark
      ------------------------------------------------- */
-    "postmark-templates-push": {
+    "postmark-push-templates": {
       options: {
         serverToken: "<%= secrets.postmarkServerToken %>"
       },
       all: {
         templates: "<%= templates %>"
       },
-      billing: {
+      staging: {
         options: {
           serverToken: ""
         },

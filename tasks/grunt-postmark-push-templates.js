@@ -10,7 +10,7 @@ module.exports = (grunt) => {
   const { prompt } = require('inquirer');
   const { table, getBorderCharacters } = require('table');
 
-  grunt.registerMultiTask('postmark-templates-push', 'Push templates to Postmark', function() {
+  grunt.registerMultiTask('postmark-push-templates', 'Push templates to Postmark', function() {
     this.review = {
       files: [],
       modified: 0,

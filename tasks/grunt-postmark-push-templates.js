@@ -1,6 +1,6 @@
 /*
- * grunt-postmark-templates
- * push templates to a Postmark server for use with SendTemplatedEmail
+ * grunt-postmark-push-templates
+ * Pushes templates from your local file system to a Postmark server
  *
  * https://github.com/wildbit/grunt-postmark.git
  */
@@ -10,7 +10,7 @@ module.exports = (grunt) => {
   const { prompt } = require('inquirer');
   const { table, getBorderCharacters } = require('table');
 
-  grunt.registerMultiTask('postmark-push-templates', 'Push templates to Postmark', function() {
+  grunt.registerMultiTask('postmark-push-templates', 'Push templates to a Postmark server', function() {
     this.review = {
       files: [],
       modified: 0,

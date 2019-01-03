@@ -11,19 +11,23 @@ module.exports = (grunt) => {
   const table = require('table');
 
   grunt.registerMultiTask('postmark-templates-push', 'Push templates to Postmark', function() {
+    this.review = {
+      files: [],
+      modified: 0,
+      added: 0
+    };
     this.results = {
-      completed: 0,
       success: 0,
       failed: 0
     };
     this.localTemplates = [];
-    var done = this.async();
-    var options = this.options();
-    var templates = options.templates;
-    var serverToken = grunt.config('secrets.postmarkServerToken');
+
+    const done = this.async();
+    const { serverToken } = this.options();
+    const { templates } = this.data;
 
     if (!serverToken) {
-      grunt.fail.warn('Missing Postmark server token \n');
+      grunt.fail.warn('Please enter a server token. This can be found under the credentials tab on your Postmark server');
     }
 
     if (!Array.isArray(templates)) {
@@ -36,8 +40,6 @@ module.exports = (grunt) => {
 
     // Get templates from server
     client.getTemplates().then(result => {
-      let review = [];
-
       // Validate template objects and parse local templates
       templates.forEach((template) => {
         validateTemplate(template);
@@ -46,9 +48,9 @@ module.exports = (grunt) => {
         const identifier = getIdentifier(template);
         const existingTemplate = _.find(result.Templates, identifier);
 
-        // Throw error if template with ID is not on server
+        // Throw error if template ID is not on server
         if (identifier.TemplateId && _.isEmpty(existingTemplate)) {
-          grunt.fail.fatal(`${template.name}: This template has an ID that is not on your Postmark server. You’ll need to use a correct ID or enter an alias to push this template.`)
+          grunt.fail.fatal(`${template.name}: This template has an ID that is not on your Postmark server. You’ll need to use a correct ID or enter an alias to push this template.`);
         }
 
         // Gather email content
@@ -65,13 +67,16 @@ module.exports = (grunt) => {
           TextBody: textBody
         });
 
-        // Add template to review list
+        // Update change counters
+        existingTemplate ? this.review.modified++ : this.review.added++;
+
+        // Add to changed file list
         const reviewChangeType = existingTemplate ? 'Modified'.yellow : 'Added'.green;
-        review.push([reviewChangeType, template.name, template.alias || `ID: ${template.id}`]);
+        this.review.files.push([reviewChangeType, template.name, template.alias || `ID: ${template.id}`]);
       });
 
       // Show files that are changing
-      printReview(review);
+      printReview();
 
       // Ask user to confirm push
       confirmPush(done);
@@ -149,7 +154,7 @@ module.exports = (grunt) => {
           });
         }).catch(response => {
           pushComplete({
-            success: true,
+            success: false,
             response,
             template,
             done
@@ -166,19 +171,23 @@ module.exports = (grunt) => {
       const { success, response, template, done } = result;
 
       // Update counters
-      this.results.completed++;
       this.results[success ? 'success' : 'failed']++;
+      const completed = this.results.success + this.results.failed;
 
-      // Log errors to the console
+      // Log any errors to the console
       if (!success) {
         grunt.log.writeln(`${template.Name}: ${response.toString()}`.red);
       }
 
       // Last template pushed
-      if (this.results.completed === this.localTemplates.length) {
-        // Log results
-        grunt.log.writeln(`${this.results.success} templates were pushed successfully.`.green);
-        grunt.log.writeln(`${this.results.failed} ${grunt.util.pluralize(this.results.failed, 'template/templates')} failed. Please see the output above for more details.`.red);
+      if (completed === this.localTemplates.length) {
+        // Show summary of results
+        grunt.log.writeln(`${this.results.success} ${grunt.util.pluralize(this.results.success, 'template was/templates were')} pushed successfully.`.green);
+
+        // Show failures
+        if (this.results.failed) {
+          grunt.log.writeln(`${this.results.failed} ${grunt.util.pluralize(this.results.failed, 'template was/templates were')} not pushed. Please see the output above for more details.`.red);
+        }
 
         done();
       }
@@ -186,11 +195,26 @@ module.exports = (grunt) => {
 
     /**
      * Prints changed files to the console
-     * @param  {Array} review List of changed files
      */
-    var printReview = (review) => {
-      let output = [['Type'.gray, 'Template'.gray, 'Alias'.gray], ...review]
-      grunt.log.writeln(table.table(output, { border: table.getBorderCharacters('norc')}));
+    var printReview = () => {
+      const { files, added, modified } = this.review;
+
+      // Changed template table
+      const list = [
+        ['Type'.gray, 'Name'.gray, 'Alias'.gray],
+        ...files
+      ];
+
+      grunt.log.writeln(table.table(list, { border: table.getBorderCharacters('norc')}));
+
+      // Show how many templates were added or modified
+      if (added > 0) {
+        grunt.log.writeln(`${added} ${grunt.util.pluralize(added, 'template/templates')} will be added.`.green);
+      }
+
+      if (modified > 0) {
+        grunt.log.writeln(`${modified} ${grunt.util.pluralize(modified, 'template/templates')} will be modified.`.yellow);
+      }
     }
 
     /**

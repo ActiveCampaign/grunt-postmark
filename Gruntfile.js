@@ -68,6 +68,16 @@ module.exports = function (grunt) {
         },
         templates: "<%= templates %>"
       }
+    },
+
+    /* This task will generate a boilerplate JSON config based on the templates that are currently on a specific Postmark server.
+       The generated config can then be used with the "postmark-push-templates" task.
+     ------------------------------------------------- */
+    "postmark-templates-config": {
+      options: {
+        serverToken: "<%= secrets.postmarkServerToken %>",
+        outputFile: "templates-server.example.json"
+      }
     }
   });
 

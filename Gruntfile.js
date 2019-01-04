@@ -39,7 +39,7 @@ module.exports = function (grunt) {
       options: {
         serverToken: "<%= secrets.postmarkServerToken %>"
       },
-      all: {
+      production: {
         templates: "<%= templates %>"
       },
       staging: {

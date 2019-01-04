@@ -92,7 +92,7 @@ grunt.initConfig({
       serverToken: "",
     },
     your_target: {
-      options: {}, // Override global task options(optional)
+      options: {}, // Override global task options (optional)
       templates: [
         {
           "name": "Password Reset",
@@ -108,7 +108,6 @@ grunt.initConfig({
 ```
 
 ### Options
-Options can be specified globally within the task or inside each target.
 
 #### serverToken
 Your server token can be found under the credentials tab on your Postmark server. We recommend storing server tokens in a separate file that does not get committed to your repo. Check out our [Gruntfile](Gruntfile.js) for more details.

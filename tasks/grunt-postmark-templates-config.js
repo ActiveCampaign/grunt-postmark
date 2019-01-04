@@ -7,6 +7,9 @@
 
 module.exports = (grunt) => {
   const { prompt } = require('inquirer');
+  const { Spinner } = require('cli-spinner');
+  const spinner = new Spinner();
+  spinner.setSpinnerString(18);
 
   grunt.registerTask('postmarkTemplatesConfig', 'Create a template JSON config from a Postmark server', function() {
     this.templateConfig = [];
@@ -30,23 +33,34 @@ module.exports = (grunt) => {
     const postmark = require('postmark');
     const client = new postmark.Client(serverToken);
 
+    // Show spinner
+    spinner.setSpinnerTitle('%s Fetching your templates from Postmark...');
+    spinner.start();
+
     // Get templates from Postmark
     client.getTemplates().then(response => {
       this.totalTemplates = response.TotalCount;
 
       // Stop if there are no templates on this server
       if (this.totalTemplates === 0) {
-        grunt.log.writeln('There are no templates on this server.')
+        spinner.stop(true);
+        grunt.log.writeln('There are no templates on this server.');
         done();
       }
 
+      // Show some feedback
+      spinner.stop(true);
+      grunt.log.writeln(`${this.totalTemplates} ${grunt.util.pluralize(this.totalTemplates, 'template was/templates were')} found on this server.`);
+      spinner.setSpinnerTitle('%s Fetching each template’s info from Postmark. Hang tight...');
+      spinner.start();
+
       // Lookup each template
-      grunt.log.writeln(`${this.totalTemplates} ${grunt.util.pluralize(this.totalTemplates, 'template was/templates were')} found on this server. Fetching each template’s info from Postmark. Hang tight...`)
       response.Templates.forEach(template => {
         getTemplate(template, done);
       });
 
     }).catch(error => {
+      spinner.stop(true);
       grunt.fail.fatal(error);
       done(false);
     });
@@ -66,6 +80,7 @@ module.exports = (grunt) => {
 
         // If this is the last template
         if (this.requestCount === this.totalTemplates) {
+          spinner.stop(true);
 
           // If output file exists
           if (grunt.file.exists(outputFile)) {
@@ -101,7 +116,7 @@ module.exports = (grunt) => {
      */
     const writeFile = (outputFile, done) => {
       grunt.file.write(outputFile, JSON.stringify(this.templateConfig, null, 2));
-      grunt.log.writeln(`The template config has been saved to ${outputFile}. \n\nNOTE: Before using the config with the "postmark-push-templates" task, be sure to update the htmlBody and textBody fields so it points to the local file.`.green);
+      grunt.log.writeln(`The template config has been saved to ${outputFile}.\n\nNOTE: Before using the config with the "postmarkPushTemplates" task, be sure to update the htmlBody and textBody fields so they reference a local template.`.green);
       done();
     }
 

@@ -9,6 +9,9 @@ module.exports = (grunt) => {
   const { find, isEmpty } = require('lodash');
   const { prompt } = require('inquirer');
   const { table, getBorderCharacters } = require('table');
+  const { Spinner } = require('cli-spinner');
+  const spinner = new Spinner();
+  spinner.setSpinnerString(18);
 
   grunt.registerMultiTask('postmarkPushTemplates', 'Push templates to a Postmark server', function() {
     this.review = {
@@ -37,6 +40,10 @@ module.exports = (grunt) => {
     // Set up Postmark client
     const postmark = require('postmark');
     const client = new postmark.Client(serverToken);
+
+    // Show spinner
+    spinner.setSpinnerTitle('%s generating a preview of changed templates...');
+    spinner.start();
 
     // Get templates from server
     client.getTemplates().then(result => {
@@ -75,16 +82,19 @@ module.exports = (grunt) => {
         this.review.files.push([reviewChangeType, template.name, template.alias || `ID: ${template.id}`]);
       });
 
+      spinner.stop(true);
+
       // Show files that are changing
       printReview();
 
       if (showConfirmation) {
         confirmPush(done);
       } else {
-        grunt.log.writeln('Hang tight. Pushing your templates to Postmark.')
+        grunt.log.writeln('Hang tight. Pushing your templates to Postmark.');
         pushTemplates(done);
       }
     }).catch(error => {
+      spinner.stop(true);
       grunt.fail.fatal(error);
       done(false);
     });
@@ -111,7 +121,8 @@ module.exports = (grunt) => {
         message: 'Are you sure you want to push these templates to Postmark?'
       }]).then(answers => {
         if (answers.push) {
-          grunt.log.writeln('Right on. Pushing your templates to Postmark...');
+          spinner.setSpinnerTitle('%s Right on. Pushing your templates to Postmark...');
+          spinner.start();
 
           pushTemplates(done);
         } else {
@@ -188,11 +199,13 @@ module.exports = (grunt) => {
 
       // Log any errors to the console
       if (!success) {
-        grunt.log.writeln(`${template.Name}: ${response.toString()}`.red);
+        grunt.log.writeln(`\n${template.Name}: ${response.toString()}`.red);
       }
 
       // Last template pushed
       if (completed === this.localTemplates.length) {
+        spinner.stop(true);
+
         // Show summary of results
         grunt.log.writeln(`${this.results.success} ${grunt.util.pluralize(this.results.success, 'template was/templates were')} pushed successfully.`.green);
 

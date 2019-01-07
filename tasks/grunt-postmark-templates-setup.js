@@ -1,30 +1,31 @@
 /*
- * grunt-postmark-templates-config.js
+ * grunt-postmark-templates-setup.js
  * Creates a template JSON config to be used with the template pushing workflow.
  *
  * https://github.com/wildbit/grunt-postmark.git
  */
 
 module.exports = (grunt) => {
+  const { format } = require('path');
   const { prompt } = require('inquirer');
   const { Spinner } = require('cli-spinner');
   const spinner = new Spinner();
   spinner.setSpinnerString(18);
 
-  grunt.registerTask('postmarkTemplatesConfig', 'Create a template JSON config from a Postmark server', function() {
+  grunt.registerTask('postmarkTemplatesSetup', 'Create a template JSON config from a Postmark server', function() {
     this.templateConfig = [];
     this.requestCount = 0;
     this.totalTemplates = 0;
 
     const done = this.async();
-    const { serverToken, outputFile } = this.options();
+    const { serverToken, configOutputFile, templateOutputDest = false } = this.options();
 
     if (!serverToken) {
       grunt.fail.warn('Please enter a server token. This can be found under the credentials tab on your Postmark server');
       done(false);
     }
 
-    if (!outputFile) {
+    if (!configOutputFile) {
       grunt.fail.warn('Please specify an output file.');
       done(false);
     }
@@ -73,34 +74,34 @@ module.exports = (grunt) => {
      */
     const getTemplate = (template, done) => {
       client.getTemplate(template.TemplateId).then(response => {
-        const { outputFile } = this.options();
+        const { configOutputFile } = this.options();
 
         this.requestCount++;
-        this.templateConfig.push(templateObject(response));
+        processTemplate(response);
 
         // If this is the last template
         if (this.requestCount === this.totalTemplates) {
           spinner.stop(true);
 
           // If output file exists
-          if (grunt.file.exists(outputFile)) {
+          if (grunt.file.exists(configOutputFile)) {
             // Ask user to confirm overwrite
             prompt([{
               type: 'confirm',
               name: 'overwrite',
               default: false,
-              message: `${outputFile} already exists. Are you sure you want to overwrite it?`
+              message: `${configOutputFile} already exists. Are you sure you want to overwrite it?`
             }]).then(answers => {
               // If user answered yes
               if (answers.overwrite) {
-                writeFile(outputFile, done);
+                saveConfig(configOutputFile, done);
               } else {
                 grunt.log.writeln('Canceling operation.');
                 done();
               }
             });
           } else {
-            writeFile(outputFile, done);
+            saveConfig(configOutputFile, done);
           }
         }
       }).catch(error => {
@@ -110,13 +111,37 @@ module.exports = (grunt) => {
     }
 
     /**
+     * Save the template if needed and add to config
+     * @param  {Object} template
+     */
+    const processTemplate = (template) => {
+      if (templateOutputDest && template.HtmlBody) {
+        const file = formatFilename(templateOutputDest, template.Name, 'html');
+        grunt.file.write(file, template.HtmlBody);
+        template.HtmlBody = file;
+      } else {
+        template.HtmlBody = 'path/to/file.html';
+      }
+
+      if (templateOutputDest && template.TextBody) {
+        const file = formatFilename(templateOutputDest, template.Name, 'txt');
+        grunt.file.write(file, template.TextBody);
+        template.TextBody = file;
+      } else {
+        template.TextBody = 'path/to/file.txt';
+      }
+
+      this.templateConfig.push(templateObject(template));
+    }
+
+    /**
      * Write template config file to path
-     * @param  {String}   outputFile
+     * @param  {String}   configOutputFile
      * @param  {Function} done
      */
-    const writeFile = (outputFile, done) => {
-      grunt.file.write(outputFile, JSON.stringify(this.templateConfig, null, 2));
-      grunt.log.writeln(`The template config has been saved to ${outputFile}.\n\nNOTE: Before using the config with the "postmarkPushTemplates" task, be sure to update the htmlBody and textBody fields so they reference a local template.`.green);
+    const saveConfig = (configOutputFile, done) => {
+      grunt.file.write(configOutputFile, JSON.stringify(this.templateConfig, null, 2));
+      grunt.log.writeln(`The template config has been saved to ${configOutputFile}.\n\nNOTE: Before using the config with the "postmarkPushTemplates" task, be sure to update the htmlBody and textBody fields so they reference a local template.`.green);
       done();
     }
 
@@ -130,9 +155,24 @@ module.exports = (grunt) => {
       alias: template.Alias ? template.Alias : undefined,
       id: !template.Alias ? template.TemplateId : undefined,
       subject: template.Subject,
-      htmlBody: '/path/to/file.html',
-      textBody: '/path/to/file.txt'
+      htmlBody: template.HtmlBody,
+      textBody: template.TextBody
     });
+
+    /**
+     * Format the template's filename
+     * @param  {String} dest Destination path
+     * @param  {String} name Name to format
+     * @param  {String} ext File extension
+     * @return {String}
+     */
+    const formatFilename = (dest, name, ext) => (
+      format({
+        dir: dest,
+        name: name.split(' ').join('_').toLowerCase(),
+        ext: `.${ext}`
+      })
+    )
 
   });
 };

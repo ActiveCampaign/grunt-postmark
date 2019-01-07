@@ -196,7 +196,7 @@ Specify the path and name of the config output file.
 
 Type: `String`
 
-### templateOutputDest
+#### templateOutputDest
 Specify where you want to save the templates. Leave this blank if you prefer not to save template content.
 
 Type: `String`

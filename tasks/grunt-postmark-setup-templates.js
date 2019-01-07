@@ -1,5 +1,5 @@
 /*
- * grunt-postmark-templates-setup.js
+ * grunt-postmark-setup-templates.js
  * Creates a template JSON config to be used with the template pushing workflow.
  *
  * https://github.com/wildbit/grunt-postmark.git
@@ -12,7 +12,7 @@ module.exports = (grunt) => {
   const spinner = new Spinner();
   spinner.setSpinnerString(18);
 
-  grunt.registerTask('postmarkTemplatesSetup', 'Create a template JSON config from a Postmark server', function() {
+  grunt.registerTask('postmarkSetupTemplates', 'Create a template JSON config from a Postmark server', function() {
     this.templateConfig = [];
     this.requestCount = 0;
     this.totalTemplates = 0;

@@ -64,7 +64,7 @@ module.exports = function (grunt) {
       },
       noConfirmation: {
         options: {
-          showConfirmation: false
+          confirm: false
         },
         templates: "<%= templates %>"
       }

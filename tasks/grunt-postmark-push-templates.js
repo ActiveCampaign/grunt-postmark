@@ -26,7 +26,7 @@ module.exports = (grunt) => {
     this.localTemplates = [];
 
     const done = this.async();
-    const { serverToken, showConfirmation = true } = this.options();
+    const { serverToken, confirm = true } = this.options();
     const { templates } = this.data;
 
     if (!serverToken) {
@@ -87,7 +87,7 @@ module.exports = (grunt) => {
       // Show files that are changing
       printReview();
 
-      if (showConfirmation) {
+      if (confirm) {
         confirmPush(done);
       } else {
         grunt.log.writeln('Hang tight. Pushing your templates to Postmark.');

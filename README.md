@@ -114,7 +114,7 @@ Your server token can be found under the credentials tab on your Postmark server
 
 Type: `String`
 
-#### showConfirmation
+#### confirm
 By default, this task will show you which templates are being modified or added and ask you to confirm the action pushing to Postmark.
 
 Type: `boolean`<br>

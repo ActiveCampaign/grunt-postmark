@@ -20,7 +20,7 @@ After the plugin is installed, it can be enabled in your Gruntfile:
 grunt.loadNpmTasks('grunt-postmark');
 ```
 
-You'll need to add a [`config.json`](https://github.com/wildbit/mailmason/wiki/Getting-Started#create-configjson-required) and a [`secrets.json`](https://github.com/wildbit/mailmason/wiki/Getting-Started#create-secretsjson-optional) per the `mailmason` configuration.
+You'll need to add a [`config.json`](https://github.com/activecampaign/mailmason/wiki/Getting-Started#create-configjson-required) and a [`secrets.json`](https://github.com/activecampaign/mailmason/wiki/Getting-Started#create-secretsjson-optional) per the `mailmason` configuration.
 
 ## Postmark task
 _Run this task with the `grunt postmark` command._
